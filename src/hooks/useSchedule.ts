@@ -1,4 +1,3 @@
-// src/hooks/useSchedule.ts
 import { useEffect, useState } from 'react';
 import { auth, db } from '../lib/firebase';
 import {

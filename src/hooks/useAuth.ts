@@ -4,12 +4,20 @@ import { GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/auth';
 export function useAuth() {
   const googleLogin = async () => {
     const provider = new GoogleAuthProvider();
-    await signInWithPopup(auth, provider);
+    try {
+      await signInWithPopup(auth, provider);
+    } catch (error) {
+      console.error("구글 로그인 에러:", error);
+    }
   };
 
-  const logout = async () => {
-    await signOut(auth);
+  const googleLogout = async () => {
+    try {
+      await signOut(auth);
+    } catch (error) {
+      console.error("로그아웃 에러:", error);
+    }
   };
 
-  return { googleLogin, logout };
+  return { googleLogin, googleLogout };
 }
