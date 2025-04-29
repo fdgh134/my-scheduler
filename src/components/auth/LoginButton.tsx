@@ -1,16 +1,20 @@
+import { Button } from "@mui/material";
 import { useAuth } from "../../hooks/useAuth";
+import { useNavigate } from "react-router-dom";
 
 export default function LoginButton() {
   const { googleLogin } = useAuth();
+  const navigate = useNavigate();
 
+  const handleLogin = async () => {
+    await googleLogin();
+    navigate("/dashboard");
+  };
   return (
     <div className="flex justify-center">
-      <button
-        onClick={googleLogin}
-        className="px-6 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg"
-      >
+      <Button variant="contained" onClick={handleLogin}>
         Google 로그인
-      </button>
+      </Button>
     </div>
   );
 }
