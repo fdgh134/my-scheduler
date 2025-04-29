@@ -4,4 +4,18 @@
 
 body {
   margin: 0;
+  padding: 0 16px;
+  width: 100%;
+  max-width: 1200px;
+  min-height: 100vh;
+  background-color: #f3f4f6;
+  box-sizing: border-box;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+@media (max-width: 767px) {
+  body {
+    padding: 0 12px;
+  }
 }

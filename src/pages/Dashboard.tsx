@@ -16,7 +16,7 @@ export default function Dashboard() {
   }, []);
   return (
     <div>
-      <div className="flex align-center">
+      <div className="flex align-center justify-center">
         <h2 className="text-2xl font-bold">깜빡</h2>
       </div>
       {user && <LogoutButton />}
