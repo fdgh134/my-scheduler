@@ -26,6 +26,9 @@ export default function TaskList({ tasks, onDelete, onEdit }: Props) {
             <Typography variant="body2" sx={{ mt: 2, textAlign: "left", fontSize: { xs: 16, sm: 16, md: 18, lg: 20 }}}>
               {task.description}
             </Typography>
+            <Typography variant="caption" color="primary" sx={{ fontWeight: 600 }}>
+              #{task.tag}
+            </Typography>
           </CardContent>
           <CardActions sx={{ justifyContent: "flex-end" }}>
             <Button size="small" onClick={() => onEdit(task)}>

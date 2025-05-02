@@ -10,6 +10,7 @@ export interface Task {
   title: string;
   date: string;
   description: string;
+  tag: string;
 }
 
 export default function ScheduleList() {
@@ -42,7 +43,7 @@ export default function ScheduleList() {
   };
 
   return (
-    <div className="mt-8 w-full max-w-2xl">
+    <div className="mt-2 w-full max-w-2xl md:max-w-3xl">
       <TaskForm onAdd={addTask} />
       <Divider sx={{ my: 4 }} />
       <TaskList tasks={tasks} onDelete={deleteTask} onEdit={editTask} />
