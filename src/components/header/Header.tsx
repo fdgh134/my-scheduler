@@ -2,16 +2,24 @@ import { useState, useEffect } from "react";
 import LoginButton from "../auth/LoginButton"
 import { User } from "firebase/auth"
 import { auth } from "../../lib/firebase";
+import { useNavigate } from "react-router-dom";
 
 export default function Header() {
   const [user, setUser] = useState<User | null>(null);
+  const navigate = useNavigate();
+
   useEffect(() => {
-      const unsubscribe = auth.onAuthStateChanged(currentUser => {
+    const unsubscribe = auth.onAuthStateChanged(currentUser => {
+      if (currentUser) {
         setUser(currentUser);
-      });
-  
-      return () => unsubscribe();
-    }, []);
+        navigate("/dashboard", { replace: true });
+      } else {
+        setUser(null);
+      }
+    });
+
+    return () => unsubscribe();
+  }, [navigate]);
 
   return (
     <div className="flex flex-col w-full h-[100vh] items-center justify-center bg-gray-100">

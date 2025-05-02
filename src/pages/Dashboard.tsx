@@ -15,13 +15,13 @@ export default function Dashboard() {
     return () => unsubscribe();
   }, []);
   return (
-    <div>
-      <div className="flex align-center justify-center">
-        <h2 className="text-2xl font-bold">깜빡</h2>
+    <div className="relative w-full h-screen bg-stone-50 pt-6 md:pt-10">
+      <div className="flex align-center justify-center mb-10">
+        <h2 className="text-4xl font-bold">깜빡</h2>
       </div>
       {user && <LogoutButton />}
 
-      <div className="flex flex-col items-center">
+      <div className="flex flex-col items-center px-4 md:px-0">
         {user && <UserGreeting user={user} />}
 
         {user && <ScheduleList />}

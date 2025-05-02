@@ -26,8 +26,8 @@ export default function AuthButton() {
   if (!user) return null;
 
   return (
-    <div className="absolute top-[20px] md:top-[30px] right-[5%]">
-      <Button variant="outlined" color="error" onClick={handleLogout}>
+    <div className="absolute top-[20px] md:top-[30px] right-[20px]">
+      <Button variant="outlined" color="error" onClick={handleLogout} sx={{ backgroundColor: "white"}}>
         로그아웃
       </Button>
     </div>
