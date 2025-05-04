@@ -25,7 +25,7 @@ export default function Dashboard() {
   useScheduleCheck();
 
   return (
-    <div className="relative w-full h-screen bg-stone-50 pt-6 md:pt-10">
+    <div className="relative w-full min-h-screen bg-stone-50 pt-6 md:pt-10">
       <div className="flex align-center pl-4 md:justify-center mb-10">
         <h1 className="text-4xl font-bold">깜빡</h1>
       </div>

@@ -1,5 +1,6 @@
 import {
   Card,
+  Box,
   CardContent,
   Typography,
   CardActions,
@@ -13,7 +14,6 @@ interface Props {
   onEdit: (task: Task) => void;
 }
 
-// ✅ datetime은 number 타입으로 들어온다고 가정하고 작성
 function getTimeBasedBgColor(datetime: number): string {
   const now = Date.now();
   const diffMin = (datetime - now) / (60 * 1000);
@@ -41,22 +41,25 @@ export default function TaskList({ tasks, onDelete, onEdit }: Props) {
             style={{ backgroundColor: bgColor, color: isTextWhite ? "white" : "inherit" }}
           >
             <CardContent>
-              <Typography variant="h6">{task.title}</Typography>
-              <Typography variant="body2" color="text.secondary">
-                {task.date}
-              </Typography>
+              <Box sx={{ display: "flex", justifyContent: "space-between"}}>
+                <Typography variant="h6">{task.title}</Typography>                
+                <Typography variant="caption" color="primary" sx={{ textAlign: "right", fontWeight: 600, fontSize: { xs: 14, sm: 14, md: 16, lg: 18 } }}  style={{ color: isTextWhite ? "white" : "inherit" }}>
+                  #{task.tag}
+                </Typography>
+              </Box>
+              <Typography variant="body2" color="text.secondary" style={{ color: isTextWhite ? "white" : "inherit" }}>
+                  {task.date}
+                </Typography>
               <Typography
                 variant="body2"
                 sx={{ mt: 2, textAlign: "left", fontSize: { xs: 16, sm: 16, md: 18, lg: 20 } }}
               >
                 {task.description}
               </Typography>
-              <Typography variant="caption" color="primary" sx={{ fontWeight: 600 }}>
-                #{task.tag}
-              </Typography>
+
             </CardContent>
             <CardActions sx={{ justifyContent: "flex-end" }}>
-              <Button size="small" onClick={() => onEdit(task)}>
+              <Button size="small" onClick={() => onEdit(task)}  style={{ color: isTextWhite ? "white" : "inherit" }}>
                 수정
               </Button>
               <Button size="small" color="error" onClick={() => onDelete(task.id)}>
