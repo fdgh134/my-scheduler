@@ -21,10 +21,15 @@ export default function TaskForm({ onAdd }: Props) {
   ];
 
   const handleSubmit = () => {
-    if (!title || !date) return;
-    onAdd({ title, date: `${date} ${time}`, description, tag });
+    if (!title || !date || !time) return;
+
+    const datetime = new Date(`${date}T${time}`).getTime();
+
+    onAdd({ title, date: `${date} ${time}`, description, tag, datetime });
+    
     setTitle("");
     setDate("");
+    setTime("");
     setDescription("");
     setTag("업무");
   };

@@ -11,6 +11,7 @@ export interface Task {
   date: string;
   description: string;
   tag: string;
+  datetime: number;
 }
 
 export default function ScheduleList() {
@@ -19,10 +20,22 @@ export default function ScheduleList() {
   useEffect(() => {
     const fetchTasks = async () => {
       const snapshot = await getDocs(collection(db, "tasks"));
-      const data = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      })) as Task[];
+      const data = snapshot.docs.map((doc) => {
+        const raw = doc.data();
+        return {
+          id: doc.id,
+          title: raw.title,
+          date: raw.date,
+          description: raw.description,
+          tag: raw.tag,
+          datetime:
+            typeof raw.datetime === "number"
+              ? raw.datetime
+              : raw.datetime?.toDate?.()
+              ? raw.datetime.toDate().getTime()
+              : new Date(raw.datetime).getTime(), // fallback
+        } satisfies Task;
+      });
       setTasks(data);
     };
     fetchTasks();
