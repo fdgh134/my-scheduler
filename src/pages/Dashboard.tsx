@@ -4,9 +4,12 @@ import UserGreeting from "../components/user/UserGreeting";
 import ScheduleList from "../components/schedule/ScheduleList";
 import { auth } from "../lib/firebase";
 import { User } from "firebase/auth";
+import { useScheduleCheck } from "../hooks/useScheduleCheck";
+import { requestNotificationPermission } from "../utils/notifications";
 
 export default function Dashboard() {
   const [user, setUser] = useState<User | null>(null);
+
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(currentUser => {
       setUser(currentUser);
@@ -14,6 +17,13 @@ export default function Dashboard() {
 
     return () => unsubscribe();
   }, []);
+
+  useEffect(() => {
+    requestNotificationPermission();
+  }, []);
+
+  useScheduleCheck();
+
   return (
     <div className="relative w-full h-screen bg-stone-50 pt-6 md:pt-10">
       <div className="flex align-center pl-4 md:justify-center mb-10">
