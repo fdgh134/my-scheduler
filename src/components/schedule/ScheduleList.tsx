@@ -3,7 +3,7 @@ import TaskForm from "./TaskForm";
 import TaskList from "./TaskList";
 import { Divider } from "@mui/material";
 import { db } from "../../lib/firebase";
-import { collection, addDoc, getDocs, deleteDoc, doc } from "firebase/firestore";
+import { collection, addDoc, getDocs, updateDoc, deleteDoc, doc } from "firebase/firestore";
 
 export interface Task {
   id: string;
@@ -20,6 +20,7 @@ export default function ScheduleList() {
   const [searchKeyword, setSearchKeyword] = useState<string>("");
   const [sortOption, setSortOption] = useState<"created" | "asc" | "desc">("created");
   const [filterTag, setFilterTag] = useState("");
+  const [editTaskId, setEditTaskId] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchTasks = async () => {
@@ -58,10 +59,6 @@ export default function ScheduleList() {
     setTasks(tasks.filter(task => task.id !== id));
   };
 
-  const editTask = (task: Task) => {
-    alert(`수정: ${task.title}`);
-  };
-
   const filteredTasks = [...tasks]
     .filter((task) => 
       task.title.toLowerCase().includes(searchKeyword.toLowerCase()) ||
@@ -74,6 +71,27 @@ export default function ScheduleList() {
       if (sortOption === "created") return a.createdAt! - b.createdAt!;
       return 0;
     });
+
+    const handleEdit = (task: Task) => {
+      setEditTaskId(task.id);
+    };
+
+    const handleUpdate = async (updatedTask: Task) => {
+      const ref = doc(db, "tasks", updatedTask.id);
+
+      await updateDoc(ref, {
+        title: updatedTask.title,
+        description: updatedTask.description,
+        tag: updatedTask.tag,
+        date: updatedTask.date,
+        datetime: updatedTask.datetime,
+      });
+      
+      setTasks((prev) =>
+        prev.map((task) => (task.id === updatedTask.id ? updatedTask : task))
+      );
+      setEditTaskId(null);
+    }
 
   return (
     <div className="mt-2 w-full max-w-2xl md:max-w-3xl">
@@ -109,7 +127,13 @@ export default function ScheduleList() {
           <option value="기타">기타</option>
         </select>
       </div>
-      <TaskList tasks={filteredTasks} onDelete={deleteTask} onEdit={editTask} />
+      <TaskList 
+        tasks={filteredTasks} 
+        onDelete={deleteTask} 
+        onEdit={handleEdit}
+        editTaskId={editTaskId}
+        onUpdate={handleUpdate}
+      />
     </div>
   );
 }
