@@ -93,7 +93,7 @@ export default function TaskList({
               dark:border-slate-700 dark:bg-slate-800`}
           >
             {isEditing ? (
-              <div className="space-y-2">
+              <div className="space-y-2 dark:bg-slate-800 dark:text-white transition-colors duration-300">
                 <input
                   value={values.title ?? task.title}
                   onChange={(e) => handleChange(task.id, "title", e.target.value)}
@@ -148,11 +148,11 @@ export default function TaskList({
                 </div>
               </div>
             ) : (
-              <div className="flex justify-between gap-4 dark:bg-slate-800 dark:text-white">
+              <div className="flex justify-between gap-4">
                 <div className="flex flex-col justify-between flex-1">
                   <div>
-                    <h3 className="text-lg font-bold">{task.title}</h3>
-                    <p className="mt-1 text-sm dark:text-gray-300">{task.content}</p>
+                    <h3 className="text-lg font-bold dark:text-white transition-colors duration-300">{task.title}</h3>
+                    <p className="mt-1 text-sm dark:text-gray-300 transition-colors duration-300">{task.content}</p>
                   </div>
                   <span className="mt-2 inline-block px-2 py-1 text-xs bg-blue-500 text-white rounded w-fit">
                     {task.tag}
@@ -160,7 +160,7 @@ export default function TaskList({
                 </div>
                 
                 <div className="flex flex-col justify-end items-end space-y-2 self-end">
-                  <div className="text-sm text-gray-600 dark:text-gray-300">
+                  <div className="text-sm text-gray-600 dark:text-gray-300 transition-colors duration-300">
                     {new Date(task.datetime).toLocaleString("ko-KR", {
                       dateStyle: "short",
                       timeStyle: "short",
