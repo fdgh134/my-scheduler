@@ -1,14 +1,4 @@
 import { useState } from "react";
-import {
-  Card,
-  Box,
-  CardContent,
-  Typography,
-  CardActions,
-  Button,
-  TextField,
-  MenuItem,
-} from "@mui/material";
 import { Task } from "./ScheduleList";
 
 interface Props {
@@ -24,179 +14,179 @@ function getTimeBasedBgColor(datetime: number): string {
   const diffMin = (datetime - now) / (60 * 1000);
 
   if (!datetime || isNaN(datetime)) return "#ffffff";
-  if (diffMin < 0) return "#ffffff";        // 지난 일정
+  if (diffMin < 0) return "#777777";        // 지난 일정
   if (diffMin > 1440) return "#ffffff";     // 1일 이상 남은 일정
-  if (diffMin > 720) return "#dbeafe";      // 12~24시간
   if (diffMin > 360) return "#bfdbfe";      // 6~12시간
   if (diffMin > 60) return "#93c5fd";       // 1~6시간
-  return "#83b1fc";                         // 1시간 이하
+  return "#7faffc";                         // 1시간 이하
 }
 
-export default function TaskList({ tasks, onDelete, onEdit, editTaskId, onUpdate }: Props) {
-  const [edited, setEdited] = useState<Partial<Task>>({});
+export default function TaskList({
+  tasks,
+  onDelete,
+  onEdit,
+  editTaskId,
+  onUpdate,
+}: Props) {
+  const [editValues, setEditValues] = useState<Record<string, Partial<Task>>>({});
+
+  const handleChange = (id: string, field: keyof Task, value: string) => {
+    setEditValues((prev) => ({
+      ...prev,
+      [id]: {
+        ...prev[id],
+        [field]: value,
+      },
+    }));
+  };
+
+  const handleSave = (task: Task) => {
+    const updated = editValues[task.id];
+    if (!updated) return;
+
+    const date = updated.date ?? new Date(task.datetime).toISOString().slice(0, 10);
+    const time = updated.time ?? new Date(task.datetime).toTimeString().slice(0, 5);
+    const datetime = new Date(`${date}T${time}`).getTime();
+
+    onUpdate({
+      ...task,
+      ...updated,
+      datetime,
+    });
+
+    setEditValues((prev) => {
+      const copy = { ...prev };
+      delete copy[task.id];
+      return copy;
+    });
+  };
+
+  const handleCancel = (id: string) => {
+    setEditValues((prev) => {
+      const copy = { ...prev };
+      delete copy[id];
+      return copy;
+    });
+  };
+
+  if (tasks.length === 0) {
+    return (
+      <p className="text-center text-gray-500 dark:text-gray-400 py-4">
+        등록된 일정이 없습니다.
+      </p>
+    );
+  }
 
   return (
-    <>
+    <div className="space-y-3">
       {tasks.map((task) => {
-        const bgColor = getTimeBasedBgColor(task.datetime);
-        const isTextWhite = bgColor === "#83b1fc";
-        const isEditing = editTaskId === task.id;
-
+        const isEditing = task.id === editTaskId;
+        const values = editValues[task.id] || {};
+        const inputBase =
+          "w-full px-3 py-2 border rounded-md shadow-sm outline-none transition-colors duration-300";
+        const input = `${inputBase} bg-white text-gray-800 border-gray-300 dark:bg-slate-700 dark:text-neutral-100 dark:border-slate-600`;
         return (
-          <Card
+          <div
             key={task.id}
-            sx={{ mb: 2 }}
-            style={{ backgroundColor: bgColor, color: isTextWhite ? "white" : "inherit" }}
+            className={`rounded-lg p-4 shadow-lg bg-white transition-colors duration-300 
+              ${getTimeBasedBgColor(task.datetime)} 
+              dark:border-slate-700 dark:bg-slate-800`}
           >
-            <CardContent>
-              {isEditing ? (
-                <>
-                  <TextField
-                    fullWidth
-                    label="제목"
-                    value={edited.title ?? task.title}
-                    onChange={(e) => setEdited((prev) => ({ ...prev, title: e.target.value }))}
-                    sx={{ mb: 1 }}
-                  />
-                  <TextField
-                    fullWidth
-                    label="날짜"
+            {isEditing ? (
+              <div className="space-y-2">
+                <input
+                  value={values.title ?? task.title}
+                  onChange={(e) => handleChange(task.id, "title", e.target.value)}
+                  className={input}
+                  placeholder="제목"
+                />
+                <div className="flex gap-4">
+                  <input
                     type="date"
-                    value={
-                      edited.date ??
-                      (task.datetime ? new Date(task.datetime).toISOString().slice(0, 10) : task.date)
-                    }
-                    onChange={(e) => {
-                      const date = e.target.value;
-                      const time = edited.datetime
-                        ? new Date(edited.datetime).toTimeString().slice(0, 5)
-                        : task.datetime
-                          ? new Date(task.datetime).toTimeString().slice(0, 5)
-                          : "00:00";
-                      setEdited((prev) => ({
-                        ...prev,
-                        date,
-                        datetime: new Date(`${date}T${time}`).getTime(),
-                      }));
-                    }}
-                    sx={{ mb: 1 }}
-                    InputLabelProps={{ shrink: true }}
+                    value={values.date ?? new Date(task.datetime).toISOString().slice(0, 10)}
+                    onChange={(e) => handleChange(task.id, "date", e.target.value)}
+                    className={input}
                   />
-                  <TextField
-                    fullWidth
-                    label="시간"
+                  <input
                     type="time"
                     value={
-                      edited.datetime !== undefined
-                        ? new Date(edited.datetime).toTimeString().slice(0, 5)
-                        : task.datetime
-                          ? new Date(task.datetime).toTimeString().slice(0, 5)
-                          : "00:00"
+                      values.time ??
+                      new Date(task.datetime).toTimeString().slice(0, 5)
                     }
-                    onChange={(e) => {
-                      const time = e.target.value;
-                      const date = edited.date ?? task.date ?? "";
-                      if (!date) return; // 날짜가 없으면 처리 안 함
-                      const datetime = new Date(`${date}T${time}`).getTime();
-                      setEdited((prev) => ({ ...prev, datetime }));
-                    }}
-                    sx={{ mb: 1 }}
-                    InputLabelProps={{ shrink: true }}
+                    onChange={(e) => handleChange(task.id, "time", e.target.value)}
+                    className={input}
                   />
-                  <TextField
-                    fullWidth
-                    label="상세내용"
-                    value={edited.description ?? task.description}
-                    onChange={(e) => setEdited((prev) => ({ ...prev, description: e.target.value }))}
-                    sx={{ mb: 1 }}
-                    multiline
-                  />
-                  <TextField
-                    fullWidth
-                    select
-                    label="태그"
-                    value={edited.tag ?? task.tag}
-                    onChange={(e) => setEdited((prev) => ({ ...prev, tag: e.target.value }))}
-                    sx={{ mb: 1 }}
+                  <select
+                    value={values.tag ?? task.tag}
+                    onChange={(e) => handleChange(task.id, "tag", e.target.value)}
+                    className={input}
                   >
-                    {["업무", "회의", "개인", "기타"].map((option) => (
-                      <MenuItem key={option} value={option}>
-                        {option}
-                      </MenuItem>
-                    ))}
-                  </TextField>
-                </>
-              ) : (
-                <>
-                  <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-                    <Typography variant="h6">{task.title}</Typography>
-                    <Typography
-                      variant="caption"
-                      sx={{
-                        textAlign: "right",
-                        fontWeight: 600,
-                        fontSize: { xs: 14, md: 16 },
-                        color: isTextWhite ? "white" : "inherit",
-                      }}
-                    >
-                      #{task.tag}
-                    </Typography>
-                  </Box>
-                  <Typography variant="body2" style={{ color: isTextWhite ? "white" : "inherit" }}>
-                    {new Date(task.datetime).toLocaleString("ko-KR", {
-                      year: "numeric",
-                      month: "2-digit",
-                      day: "2-digit",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                  </Typography>
-                  <Typography
-                    variant="body2"
-                    sx={{ mt: 2, textAlign: "left", fontSize: { xs: 16, sm: 18 } }}
-                  >
-                    {task.description}
-                  </Typography>
-                </>
-              )}
-            </CardContent>
-            <CardActions sx={{ justifyContent: "flex-end" }}>
-              {isEditing ? (
-                <>
-                  <Button
-                    size="small"
-                    onClick={() =>
-                      onUpdate({
-                        ...task,
-                        ...edited,
-                        title: edited.title ?? task.title,
-                        description: edited.description ?? task.description,
-                        tag: edited.tag ?? task.tag,
-                        date: edited.date ?? task.date,
-                        datetime: edited.datetime ?? task.datetime,
-                      })
-                    }
+                    <option value="업무">업무</option>
+                    <option value="개인">개인</option>
+                    <option value="기타">기타</option>
+                  </select>
+                </div>
+                <textarea
+                  value={values.content ?? task.content}
+                  onChange={(e) => handleChange(task.id, "content", e.target.value)}
+                  className={input}
+                  placeholder=""
+                />
+                <div className="flex gap-2 mt-2">
+                  <button
+                    onClick={() => handleSave(task)}
+                    className="bg-blue-500 text-white px-4 py-1 rounded"
                   >
                     저장
-                  </Button>
-                  <Button size="small" color="error" onClick={() => onEdit({ ...task, id: "" })}>
+                  </button>
+                  <button
+                    onClick={() => handleCancel(task.id)}
+                    className="bg-gray-400 text-white px-4 py-1 rounded"
+                  >
                     취소
-                  </Button>
-                </>
-              ) : (
-                <>
-                  <Button size="small" onClick={() => onEdit(task)} style={{ color: isTextWhite ? "white" : "inherit" }}>
-                    수정
-                  </Button>
-                  <Button size="small" color="error" onClick={() => onDelete(task.id)}>
-                    삭제
-                  </Button>
-                </>
-              )}
-            </CardActions>
-          </Card>
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="flex justify-between gap-4 dark:bg-slate-800 dark:text-white">
+                <div className="flex flex-col justify-between flex-1">
+                  <div>
+                    <h3 className="text-lg font-bold">{task.title}</h3>
+                    <p className="mt-1 text-sm dark:text-gray-300">{task.content}</p>
+                  </div>
+                  <span className="mt-2 inline-block px-2 py-1 text-xs bg-blue-500 text-white rounded w-fit">
+                    {task.tag}
+                  </span>
+                </div>
+                
+                <div className="flex flex-col justify-end items-end space-y-2 self-end">
+                  <div className="text-sm text-gray-600 dark:text-gray-300">
+                    {new Date(task.datetime).toLocaleString("ko-KR", {
+                      dateStyle: "short",
+                      timeStyle: "short",
+                    })}
+                  </div>
+                  <div className="flex gap-2 mt-8">
+                    <button
+                      onClick={() => onEdit(task)}
+                      className="bg-blue-500 text-white px-4 py-1 rounded"
+                    >
+                      수정
+                    </button>
+                    <button
+                      onClick={() => onDelete(task.id)}
+                      className="bg-red-600 text-white px-4 py-1 rounded"
+                    >
+                      삭제
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
         );
       })}
-    </>
+    </div>
   );
 }
+

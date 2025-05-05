@@ -8,8 +8,9 @@ import { collection, addDoc, getDocs, updateDoc, deleteDoc, doc } from "firebase
 export interface Task {
   id: string;
   title: string;
+  content: string; 
   date: string;
-  description: string;
+  time: string;
   tag: string;
   datetime: number;
   createdAt?: number;
@@ -30,8 +31,9 @@ export default function ScheduleList() {
         return {
           id: doc.id,
           title: raw.title,
+          content: raw.content ?? "",      
+          time: raw.time ?? "",  
           date: raw.date,
-          description: raw.description,
           tag: raw.tag,
           datetime:
             typeof raw.datetime === "number"
@@ -62,7 +64,7 @@ export default function ScheduleList() {
   const filteredTasks = [...tasks]
     .filter((task) => 
       task.title.toLowerCase().includes(searchKeyword.toLowerCase()) ||
-      task.description.includes(searchKeyword)
+      task.content.toLowerCase().includes(searchKeyword)
     )
     .filter((task) => (filterTag && filterTag !== "전체" ? task.tag === filterTag : true))
     .sort((a, b) => {
@@ -81,9 +83,10 @@ export default function ScheduleList() {
 
       await updateDoc(ref, {
         title: updatedTask.title,
-        description: updatedTask.description,
+        content: updatedTask.content,
         tag: updatedTask.tag,
         date: updatedTask.date,
+        time: updatedTask.time,
         datetime: updatedTask.datetime,
       });
       
@@ -103,13 +106,13 @@ export default function ScheduleList() {
           placeholder="검색어 입력"
           value={searchKeyword}
           onChange={(e) => setSearchKeyword(e.target.value)}
-          className="w-full md:w-1/2 px-4 py-2 border border-gray-300 rounded-md bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full md:w-1/2 px-4 py-2 border border-gray-300 rounded-md bg-white dark:bg-slate-800 dark:text-neutral-100 dark:border-slate-700 transition-colors duration-300 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
 
         <select
           value={sortOption}
           onChange={(e) => setSortOption(e.target.value as "created" | "asc" | "desc")}
-          className="w-full md:w-1/4 px-4 py-2 border border-gray-300 rounded-md shadow-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full md:w-1/4 px-4 py-2 border border-gray-300 rounded-md shadow-sm bg-white dark:bg-slate-800 dark:text-neutral-100 dark:border-slate-700 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
           <option value="created">등록순</option>
           <option value="asc">오름차순</option>
@@ -118,7 +121,7 @@ export default function ScheduleList() {
         <select
           value={filterTag}
           onChange={(e) => setFilterTag(e.target.value)}
-          className="w-full md:w-1/4 px-4 py-2 border border-gray-300 rounded-md shadow-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500" 
+          className="w-full md:w-1/4 px-4 py-2 border border-gray-300 rounded-md shadow-sm bg-white dark:bg-slate-800 dark:text-neutral-100 dark:border-slate-700 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500" 
         >
           <option value="전체">전체</option>
           <option value="업무">업무</option>

@@ -1,8 +1,15 @@
+const theme = localStorage.getItem("theme");
+if (theme === "dark") {
+  document.documentElement.classList.add("dark");
+} else {
+  document.documentElement.classList.remove("dark");
+}
+
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
-import './index.css'
-import App from './App.tsx'
+import './index.css';
+import App from './App.tsx';
 
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker
@@ -21,4 +28,4 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
       <App />
     </BrowserRouter>
   </React.StrictMode>,
-)
+);

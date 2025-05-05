@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { TextField, Button, Box, MenuItem } from "@mui/material";
 import { Task } from "./ScheduleList";
 
 interface Props {
@@ -25,7 +24,14 @@ export default function TaskForm({ onAdd }: Props) {
 
     const datetime = new Date(`${date}T${time}`).getTime();
 
-    onAdd({ title, date: `${date} ${time}`, description, tag, datetime });
+    onAdd({
+      title,
+      date,
+      time,
+      content: description,
+      tag,
+      datetime,
+    });
     
     setTitle("");
     setDate("");
@@ -34,84 +40,58 @@ export default function TaskForm({ onAdd }: Props) {
     setTag("업무");
   };
 
-  const tagColorMap: Record<string, string> = {
-    work: "#1976d2",      
-    meeting: "#388e3c",   
-    personal: "#f57c00",  
-    other: "#9e9e9e",
-  };
+  const inputBase =
+    "w-full px-3 py-2 border rounded-md shadow-sm outline-none transition-colors duration-300";
+  const input = `${inputBase} bg-white text-gray-800 border-gray-300 dark:bg-slate-800 dark:text-neutral-100 dark:border-slate-700`;
 
   return (
-    <Box sx={{ display: "flex", flexDirection: "column", gap: 2, mb: 4 }}>
-        <TextField
-          label="일정 제목"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          fullWidth
-          sx={{ backgroundColor: "white" }}
-        />
-      <Box sx={{ display: "flex", flexDirection: { xs: "column", sm: "row" }, gap: 2, }}>
-        <TextField
+    <div className="flex flex-col gap-4 mb-6">
+      <input
+        type="text"
+        placeholder="일정 제목"
+        value={title}
+        onChange={(e) => setTitle(e.target.value)}
+        className={input}
+      />
+      <div className="flex gap-4">
+        <input
           type="date"
-          label="날짜"
           value={date}
           onChange={(e) => setDate(e.target.value)}
-          InputLabelProps={{ shrink: true }}
-          sx={{ flexShrink: 0, backgroundColor: "white" }}
+          className={input}
         />
-        <TextField 
-          label="시간"
+        <input
           type="time"
           value={time}
           onChange={(e) => setTime(e.target.value)}
-          InputLabelProps={{ shrink: true }}
-          sx={{ flexShrink: 0, backgroundColor: "white" }}
+          className={input}
         />
-        <TextField 
-          select
-          label="태그"
+        <select
           value={tag}
           onChange={(e) => setTag(e.target.value)}
-          sx={{ minWidth: "100px" , flexShrink: 0, backgroundColor: "white" }}     
+          className={input}
         >
           {tags.map((option) => (
-            <MenuItem
-            key={option.value}
-            value={option.value}
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              gap: 1,
-              fontWeight: 500,
-              px: 2,
-              py: 1,
-              borderRadius: 1,
-              '&:hover': {
-                backgroundColor: 'primary.light',
-                color: 'primary.main',
-              },
-            }}
-          >
-            <span style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: tagColorMap[option.value] }} />
-            {option.label}
-          </MenuItem>
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
           ))}
-        </TextField>
-      </Box>
-      <TextField
-        type="상세 내용"
+        </select>
+      </div>
+      
+      <textarea
+        placeholder="설명"
         value={description}
         onChange={(e) => setDescription(e.target.value)}
-        multiline
+        className={input}
         rows={3}
-        fullWidth
-        sx={{ backgroundColor: "white" }}
       />
-      <Box sx={{ textAlign: { xs: "center", sm: "right" } }}>
-        <Button variant="contained" onClick={handleSubmit} sx={{ minWidth: { xs: 120, sm: 100 }}}>
-          추가
-        </Button>
-      </Box>
-    </Box>
+      <button
+        onClick={handleSubmit}
+        className="self-end px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700 transition"
+      >
+        추가
+      </button>
+    </div>
   );
 }
