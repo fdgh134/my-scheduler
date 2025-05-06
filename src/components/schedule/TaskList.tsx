@@ -1,10 +1,14 @@
 import { useState } from "react";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import "react-time-picker/dist/TimePicker.css";
+import "react-clock/dist/Clock.css";
 import { Task } from "./ScheduleList";
 
 interface Props {
   tasks: Task[];
   onDelete: (id: string) => void;
-  onEdit: (task: Task) => void;
+  onEdit: (task: Task | null) => void;
   editTaskId: string | null;
   onUpdate: (task: Task) => void;
 }
@@ -30,7 +34,7 @@ export default function TaskList({
 }: Props) {
   const [editValues, setEditValues] = useState<Record<string, Partial<Task>>>({});
 
-  const handleChange = (id: string, field: keyof Task, value: string) => {
+  const handleChange = (id: string, field: keyof Task, value: string | number) => {
     setEditValues((prev) => ({
       ...prev,
       [id]: {
@@ -44,14 +48,25 @@ export default function TaskList({
     const updated = editValues[task.id];
     if (!updated) return;
 
-    const date = updated.date ?? new Date(task.datetime).toISOString().slice(0, 10);
-    const time = updated.time ?? new Date(task.datetime).toTimeString().slice(0, 5);
-    const datetime = new Date(`${date}T${time}`).getTime();
+    const newDate  = updated.date ?? new Date(task.datetime).toISOString().slice(0, 10);
+    const newTime  = updated.time ?? new Date(task.datetime).toTimeString().slice(0, 5);
+    const newDatetime = new Date(`${newDate}T${newTime }`).getTime();
 
+    const isChanged =
+    updated.title !== task.title ||
+    updated.tag !== task.tag ||
+    updated.content !== task.content ||
+    newDatetime !== task.datetime;
+
+    if (!isChanged) {
+      alert("변경된 내용이 없습니다.");
+      return;
+    }
+    
     onUpdate({
       ...task,
       ...updated,
-      datetime,
+      datetime: newDatetime,
     });
 
     setEditValues((prev) => {
@@ -62,6 +77,7 @@ export default function TaskList({
   };
 
   const handleCancel = (id: string) => {
+    onEdit(null); 
     setEditValues((prev) => {
       const copy = { ...prev };
       delete copy[id];
@@ -94,27 +110,24 @@ export default function TaskList({
           >
             {isEditing ? (
               <div className="space-y-2 dark:bg-slate-800 dark:text-white transition-colors duration-300">
-                <input
-                  value={values.title ?? task.title}
-                  onChange={(e) => handleChange(task.id, "title", e.target.value)}
-                  className={input}
-                  placeholder="제목"
-                />
                 <div className="flex gap-4">
-                  <input
-                    type="date"
-                    value={values.date ?? new Date(task.datetime).toISOString().slice(0, 10)}
-                    onChange={(e) => handleChange(task.id, "date", e.target.value)}
-                    className={input}
-                  />
-                  <input
-                    type="time"
-                    value={
-                      values.time ??
-                      new Date(task.datetime).toTimeString().slice(0, 5)
+                  <DatePicker
+                    selected={
+                      values.datetime
+                        ? new Date(values.datetime)
+                        : new Date(task.datetime)
                     }
-                    onChange={(e) => handleChange(task.id, "time", e.target.value)}
-                    className={input}
+                    onChange={(date) => {
+                      if (date) {
+                        handleChange(task.id, "datetime", date.getTime());
+                        handleChange(task.id, "date", date.toISOString().split("T")[0]);
+                        handleChange(task.id, "time", date.toTimeString().slice(0, 5));
+                      }
+                    }}
+                    showTimeSelect
+                    dateFormat="yyyy-MM-dd h:mm aa"
+                    timeFormat="HH:mm"
+                    className={input + " w-full"}
                   />
                   <select
                     value={values.tag ?? task.tag}

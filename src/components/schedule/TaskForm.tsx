@@ -1,5 +1,9 @@
 import { useState } from "react";
 import { Task } from "./ScheduleList";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import { ko } from "date-fns/locale";
+import { format } from "date-fns";
 
 interface Props {
   onAdd: (task: Omit<Task, "id">) => void;
@@ -7,10 +11,9 @@ interface Props {
 
 export default function TaskForm({ onAdd }: Props) {
   const [title, setTitle] = useState("");
-  const [date, setDate] = useState("");
   const [description, setDescription] = useState("");
-  const [time, setTime] = useState("");
   const [tag, setTag] = useState("업무");
+  const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
 
   const tags = [
     { label: "업무", value: "업무" },
@@ -20,22 +23,23 @@ export default function TaskForm({ onAdd }: Props) {
   ];
 
   const handleSubmit = () => {
-    if (!title || !date || !time) return;
+    if (!title || !selectedDate) return;
 
-    const datetime = new Date(`${date}T${time}`).getTime();
+    const formattedDate = format(selectedDate, "yyyy-MM-dd");
+    const formattedTime = format(selectedDate, "HH:mm");
+    const datetime = selectedDate.getTime();
 
     onAdd({
       title,
-      date,
-      time,
+      date: formattedDate,
+      time: formattedTime,
       content: description,
       tag,
       datetime,
     });
     
     setTitle("");
-    setDate("");
-    setTime("");
+    setSelectedDate(new Date());
     setDescription("");
     setTag("업무");
   };
@@ -54,18 +58,19 @@ export default function TaskForm({ onAdd }: Props) {
         className={input}
       />
       <div className="flex gap-4">
-        <input
-          type="date"
-          value={date}
-          onChange={(e) => setDate(e.target.value)}
-          className={input}
-        />
-        <input
-          type="time"
-          value={time}
-          onChange={(e) => setTime(e.target.value)}
-          className={input}
-        />
+        <div className="w-full">
+          <DatePicker
+            selected={selectedDate}
+            onChange={(date) => setSelectedDate(date)}
+            showTimeSelect
+            timeFormat="HH:mm"
+            timeIntervals={15}
+            dateFormat="yyyy-MM-dd HH:mm"
+            locale={ko}
+            className={input}
+            placeholderText="날짜 및 시간 선택"
+          />
+        </div>
         <select
           value={tag}
           onChange={(e) => setTag(e.target.value)}

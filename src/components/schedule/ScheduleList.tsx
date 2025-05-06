@@ -74,8 +74,8 @@ export default function ScheduleList() {
       return 0;
     });
 
-    const handleEdit = (task: Task) => {
-      setEditTaskId(task.id);
+    const handleEdit = (task: Task | null) => {
+      setEditTaskId(task ? task.id : null);
     };
 
     const handleUpdate = async (updatedTask: Task) => {
