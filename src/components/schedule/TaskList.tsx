@@ -1,9 +1,11 @@
 import { useState } from "react";
+import clsx from "clsx";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import "react-time-picker/dist/TimePicker.css";
 import "react-clock/dist/Clock.css";
 import { Task } from "./ScheduleList";
+import { Checkbox } from "@mui/material";
 
 interface Props {
   tasks: Task[];
@@ -11,6 +13,7 @@ interface Props {
   onEdit: (task: Task | null) => void;
   editTaskId: string | null;
   onUpdate: (task: Task) => void;
+  onToggleDone: (id: string) => void;
 }
 
 function getTimeBasedBgColor(datetime: number): string {
@@ -31,6 +34,7 @@ export default function TaskList({
   onEdit,
   editTaskId,
   onUpdate,
+  onToggleDone,
 }: Props) {
   const [editValues, setEditValues] = useState<Record<string, Partial<Task>>>({});
 
@@ -104,9 +108,12 @@ export default function TaskList({
         return (
           <div
             key={task.id}
-            className={`rounded-lg p-4 shadow-lg bg-white transition-colors duration-300 
-              ${getTimeBasedBgColor(task.datetime)} 
-              dark:border-slate-700 dark:bg-slate-800`}
+            className={clsx(
+              "rounded-lg p-4 shadow-lg transition-colors duration-300",
+              task.isDone
+                ? "bg-green-300 dark:bg-green-800 text-green-900 dark:text-green-100 line-through"
+                : `bg-white dark:bg-slate-800 text-gray-900 dark:text-white ${getTimeBasedBgColor(task.datetime)}`
+            )}
           >
             {isEditing ? (
               <div className="space-y-2 dark:bg-slate-800 dark:text-white transition-colors duration-300">
@@ -194,6 +201,19 @@ export default function TaskList({
                     </button>
                   </div>
                 </div>
+                <Checkbox
+                  checked={task.isDone}
+                  onChange={() => onToggleDone(task.id)}
+                  sx={{
+                    color: "oklch(62.3% 0.214 259.815)",
+                    '&.Mui-checked': {
+                      color: "#22c55e",
+                    },
+                    '& .MuiSvgIcon-root': {
+                      borderRadius: 4,
+                    },
+                  }}
+                />
               </div>
             )}
           </div>

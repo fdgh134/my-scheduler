@@ -14,6 +14,7 @@ export interface Task {
   tag: string;
   datetime: number;
   createdAt?: number;
+  isDone: boolean;
 }
 
 export default function ScheduleList() {
@@ -43,6 +44,7 @@ export default function ScheduleList() {
               : typeof raw.datetime === "string"
               ? new Date(raw.datetime).getTime()
               : Date.now(), 
+          isDone: raw.isDone ?? false,
         } satisfies Task;
       });
       setTasks(data);
@@ -96,6 +98,22 @@ export default function ScheduleList() {
       setEditTaskId(null);
     }
 
+    const toggleDone = async (id: string) => {
+      setTasks((prev) =>
+        prev.map((task) =>
+          task.id === id ? { ...task, isDone: !task.isDone } : task
+        )
+      );
+
+      const target = tasks.find((task) => task.id === id);
+      if (target) {
+        const ref = doc(db, "tasks", id);
+        await updateDoc(ref, {
+          isDone: !target.isDone,
+        });
+      }
+    };
+
   return (
     <div className="mt-2 w-full max-w-2xl md:max-w-3xl">
       <TaskForm onAdd={addTask} />
@@ -136,6 +154,7 @@ export default function ScheduleList() {
         onEdit={handleEdit}
         editTaskId={editTaskId}
         onUpdate={handleUpdate}
+        onToggleDone={toggleDone}
       />
     </div>
   );

@@ -9,11 +9,15 @@ interface Props {
   onAdd: (task: Omit<Task, "id">) => void;
 }
 
+type RepeatType = "none" | "daily" | "weekly" | "monthly";
+
 export default function TaskForm({ onAdd }: Props) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [tag, setTag] = useState("업무");
   const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
+  const [repeat, setRepeat] = useState<RepeatType>("none");
+  const [repeatUntill, setRepeatUntill] = useState<string>("");
 
   const tags = [
     { label: "업무", value: "업무" },
@@ -36,6 +40,7 @@ export default function TaskForm({ onAdd }: Props) {
       content: description,
       tag,
       datetime,
+      isDone: false,
     });
     
     setTitle("");
@@ -71,6 +76,24 @@ export default function TaskForm({ onAdd }: Props) {
             placeholderText="날짜 및 시간 선택"
           />
         </div>
+        <select
+          value={repeat}
+          onChange={(e) => setRepeat(e.target.value as RepeatType)}
+          className={input}
+        >
+          <option value="none">반복 없음</option>
+          <option value="daily">매일</option>
+          <option value="weekly">매주</option>
+          <option value="monthly">매월</option>
+        </select>
+        {repeat !== "none" && (
+          <input
+            type="date"
+            value={repeatUntill}
+            onChange={(e) => setRepeatUntill(e.target.value)}
+            className={input}
+          />
+        )}
         <select
           value={tag}
           onChange={(e) => setTag(e.target.value)}
