@@ -6,7 +6,7 @@ import { ko } from "date-fns/locale";
 import { format } from "date-fns";
 
 interface Props {
-  onAdd: (task: Omit<Task, "id">) => void;
+  onAdd: (tasks: Omit<Task, "id">[]) => void;
 }
 
 type RepeatType = "none" | "daily" | "weekly" | "monthly";
@@ -29,24 +29,63 @@ export default function TaskForm({ onAdd }: Props) {
   const handleSubmit = () => {
     if (!title || !selectedDate) return;
 
-    const formattedDate = format(selectedDate, "yyyy-MM-dd");
-    const formattedTime = format(selectedDate, "HH:mm");
-    const datetime = selectedDate.getTime();
-
-    onAdd({
+    const baseTask = {
       title,
-      date: formattedDate,
-      time: formattedTime,
       content: description,
       tag,
-      datetime,
       isDone: false,
-    });
+    };
+
+    const tasksToAdd: Omit<Task, "id">[] = [];
+
+    if (repeat === "none" || !repeatUntill) {
+     
+      const formattedDate = format(selectedDate, "yyyy-MM-dd");
+      const formattedTime = format(selectedDate, "HH:mm");
+      const datetime = selectedDate.getTime();
+
+      tasksToAdd.push({
+        ...baseTask,
+        date: formattedDate,
+        time: formattedTime,
+        datetime,
+      });
+    } else {
+      const endDate = new Date(repeatUntill);
+      let current = new Date(selectedDate);
+
+      while (current <= endDate) {
+        const formattedDate = format(current, "yyyy-MM-dd");
+        const formattedTime = format(current, "HH:mm");
+        const datetime = current.getTime();
+
+        tasksToAdd.push({
+          ...baseTask,
+          date: formattedDate,
+          time: formattedTime,
+          datetime,
+        });
+
+        // 날짜 증가
+        current = new Date(current);
+        if (repeat === "daily") {
+          current.setDate(current.getDate() + 1);
+        } else if (repeat === "weekly") {
+          current.setDate(current.getDate() + 7);
+        } else if (repeat === "monthly") {
+          current.setMonth(current.getMonth() + 1);
+        }
+      }
+    }
     
+    onAdd(tasksToAdd);
+
     setTitle("");
     setSelectedDate(new Date());
     setDescription("");
     setTag("업무");
+    setRepeat("none");
+    setRepeatUntill("");
   };
 
   const inputBase =

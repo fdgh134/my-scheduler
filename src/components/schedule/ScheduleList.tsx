@@ -52,10 +52,17 @@ export default function ScheduleList() {
     fetchTasks();
   }, []);
 
-  const addTask = async (task: Omit<Task, "id">) => {
-    const withTimestamp = { ...task, createdAt: Date.now() };
-    const docRef = await addDoc(collection(db, "tasks"), withTimestamp);
-    setTasks([...tasks, { ...withTimestamp, id: docRef.id }]);
+  const addTasks = async (newTasks: Omit<Task, "id">[]) => {
+    const createdAt = Date.now();
+  
+    const promises = newTasks.map(async (task) => {
+      const withTimestamp = { ...task, createdAt };
+      const docRef = await addDoc(collection(db, "tasks"), withTimestamp);
+      return { ...withTimestamp, id: docRef.id };
+    });
+  
+    const inserted = await Promise.all(promises);
+    setTasks((prev) => [...prev, ...inserted]);
   };
 
   const deleteTask = async (id: string) => {
@@ -116,7 +123,7 @@ export default function ScheduleList() {
 
   return (
     <div className="mt-2 w-full max-w-2xl md:max-w-3xl">
-      <TaskForm onAdd={addTask} />
+      <TaskForm onAdd={addTasks} />
       <Divider sx={{ my: 4 }} />
       <div className="flex flex-col sm:flex-row gap-2 mb-4">
         <input
