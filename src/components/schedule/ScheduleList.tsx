@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
 import TaskForm from "./TaskForm";
 import TaskList from "./TaskList";
+import CalendarView from "./CalendarView";
 import { Divider } from "@mui/material";
 import { db } from "../../lib/firebase";
 import { collection, addDoc, getDocs, updateDoc, deleteDoc, doc } from "firebase/firestore";
+import { List, Calendar } from "lucide-react"
 
 export interface Task {
   id: string;
@@ -23,6 +25,7 @@ export default function ScheduleList() {
   const [sortOption, setSortOption] = useState<"created" | "asc" | "desc">("created");
   const [filterTag, setFilterTag] = useState("");
   const [editTaskId, setEditTaskId] = useState<string | null>(null);
+  const [viewMode, setViewMode] = useState<"list" | "calendar">("list");
 
   useEffect(() => {
     const fetchTasks = async () => {
@@ -155,14 +158,40 @@ export default function ScheduleList() {
           <option value="기타">기타</option>
         </select>
       </div>
-      <TaskList 
-        tasks={filteredTasks} 
-        onDelete={deleteTask} 
-        onEdit={handleEdit}
-        editTaskId={editTaskId}
-        onUpdate={handleUpdate}
-        onToggleDone={toggleDone}
-      />
+      <div className="mb-4 flex justify-end gap-2">
+        <button
+          onClick={() => setViewMode("list")}
+          className={`flex items-center gap-2 px-4 py-2 rounded-md ${
+            viewMode === "list" ? "bg-blue-600 text-white" : "bg-gray-200 dark:bg-gray-700 dark:text-white"
+          }`}
+        >
+          <List size={18} />
+          리스트
+        </button>
+
+        <button
+          onClick={() => setViewMode("calendar")}
+          className={`flex items-center gap-2 px-4 py-2 rounded-md ${
+            viewMode === "calendar" ? "bg-blue-600 text-white" : "bg-gray-200 dark:bg-gray-700 dark:text-white"
+          }`}
+        >
+          <Calendar size={18} />
+          캘린더
+        </button>
+      </div>
+      {viewMode === "calendar" ? (
+        <CalendarView tasks={filteredTasks} />
+      ) : (
+        <TaskList 
+          tasks={filteredTasks} 
+          onDelete={deleteTask} 
+          onEdit={handleEdit}
+          editTaskId={editTaskId}
+          onUpdate={handleUpdate}
+          onToggleDone={toggleDone}
+        />
+      )}
+      
     </div>
   );
 }
