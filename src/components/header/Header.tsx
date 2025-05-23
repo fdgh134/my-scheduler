@@ -24,6 +24,7 @@ export default function Header() {
   return (
     <div className="flex flex-col w-full h-[100vh] items-center justify-center bg-gray-100">
       <h1 className="text-4xl font-bold text-blue-600 mb-10">일정관리 서비스 깜빡</h1>
+      <p className="text-sm text-gray-500 mb-5">로그인 후 사용하세요.</p>
       {!user && <LoginButton />}
     </div>
   )
