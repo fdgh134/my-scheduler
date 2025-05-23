@@ -124,6 +124,20 @@ export default function ScheduleList() {
       }
     };
 
+    const now = new Date();
+    const startOfWeek = new Date(now);
+    startOfWeek.setDate(now.getDate() - now.getDay());
+
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+    const weeklyCount = tasks.filter(task =>
+      new Date(task.date) >= startOfWeek
+    ).length;
+
+    const monthlyCount = tasks.filter(task =>
+      new Date(task.date) >= startOfMonth
+    ).length;
+
   return (
     <div className="mt-2 w-full max-w-2xl md:max-w-3xl">
       <TaskForm onAdd={addTasks} />
@@ -138,6 +152,7 @@ export default function ScheduleList() {
         />
 
         <select
+          aria-label="정렬 옵션"
           value={sortOption}
           onChange={(e) => setSortOption(e.target.value as "created" | "asc" | "desc")}
           className="w-full md:w-1/4 px-4 py-2 border border-gray-300 rounded-md shadow-sm bg-white dark:bg-slate-800 dark:text-neutral-100 dark:border-slate-700 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -147,6 +162,7 @@ export default function ScheduleList() {
           <option value="desc">내림차순</option>
         </select>
         <select
+          aria-label="태그 필터"
           value={filterTag}
           onChange={(e) => setFilterTag(e.target.value)}
           className="w-full md:w-1/4 px-4 py-2 border border-gray-300 rounded-md shadow-sm bg-white dark:bg-slate-800 dark:text-neutral-100 dark:border-slate-700 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500" 
@@ -160,6 +176,16 @@ export default function ScheduleList() {
       </div>
       <div className="mb-4 flex justify-end gap-2">
         <button
+          onClick={() => {
+            setSearchKeyword("");
+            setFilterTag("");
+            setSortOption("created");
+          }}
+          className="px-4 py-2 text-sm bg-gray-200 dark:bg-gray-700 text-black dark:text-white rounded-md transition"
+        >
+          필터 초기화
+        </button>
+        <button
           onClick={() => setViewMode("list")}
           className={`flex items-center gap-2 px-4 py-2 rounded-md ${
             viewMode === "list" ? "bg-blue-600 text-white" : "bg-gray-200 dark:bg-gray-700 dark:text-white"
@@ -172,13 +198,16 @@ export default function ScheduleList() {
         <button
           onClick={() => setViewMode("calendar")}
           className={`flex items-center gap-2 px-4 py-2 rounded-md ${
-            viewMode === "calendar" ? "bg-blue-600 text-white" : "bg-gray-200 dark:bg-gray-700 dark:text-white"
+            viewMode === "calendar" ? "bg-blue-600 text-white" : "bg-gray-200 dark:bg-gray-700 dark:text-white transition"
           }`}
         >
           <Calendar size={18} />
           캘린더
         </button>
       </div>
+      <p className="mb-2 text-sm text-gray-600 dark:text-gray-300">
+        이번 주 일정: <strong>{weeklyCount}</strong>개 / 이번 달 일정: <strong>{monthlyCount}</strong>개
+      </p>
       {viewMode === "calendar" ? (
         <CalendarView tasks={filteredTasks} />
       ) : (

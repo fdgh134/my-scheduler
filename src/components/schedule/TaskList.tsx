@@ -137,6 +137,7 @@ export default function TaskList({
                     className={input + " w-full"}
                   />
                   <select
+                    aria-label="태그 선택택"
                     value={values.tag ?? task.tag}
                     onChange={(e) => handleChange(task.id, "tag", e.target.value)}
                     className={input}
@@ -147,6 +148,7 @@ export default function TaskList({
                   </select>
                 </div>
                 <textarea
+                  aria-label="일정 내용"
                   value={values.content ?? task.content}
                   onChange={(e) => handleChange(task.id, "content", e.target.value)}
                   className={input}

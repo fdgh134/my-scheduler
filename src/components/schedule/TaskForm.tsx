@@ -116,6 +116,7 @@ export default function TaskForm({ onAdd }: Props) {
           />
         </div>
         <select
+          aria-label="반복 설정"
           value={repeat}
           onChange={(e) => setRepeat(e.target.value as RepeatType)}
           className={input}
@@ -127,6 +128,7 @@ export default function TaskForm({ onAdd }: Props) {
         </select>
         {repeat !== "none" && (
           <input
+            aria-label="반복 종료일"
             type="date"
             value={repeatUntill}
             onChange={(e) => setRepeatUntill(e.target.value)}
@@ -134,6 +136,7 @@ export default function TaskForm({ onAdd }: Props) {
           />
         )}
         <select
+          aria-label="태그 선택"
           value={tag}
           onChange={(e) => setTag(e.target.value)}
           className={input}
